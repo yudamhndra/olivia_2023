@@ -27,9 +27,12 @@ Route::post('mobileregister', [MobileUsersRegistrationController::class, 'regist
 Route::post('mobilelogout', [MobileUsersRegistrationController::class, 'logout']);
 
 //plants
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/plants/upload-image', [PlantsController::class, 'store']);
-    Route::get('/data', [PlantsController::class, 'index']);  
-});
+// Route::middleware('auth:sanctum')->group(function () {
+    
+     
+// });
+
+Route::get('/data', [PlantsController::class, 'index']); 
+Route::post('/upload-image', [PlantsController::class, 'store']);
 
 
