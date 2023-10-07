@@ -11,7 +11,7 @@ class plants extends Model
     protected $table = 'plants';
     protected $primaryKey = 'id';
 
-    protected $fillable = ['plant_img','plant_name', 'condition', 'disease'];
+    protected $fillable = ['id_users', 'plant_img','plant_name', 'condition', 'disease'];
 
 
 }

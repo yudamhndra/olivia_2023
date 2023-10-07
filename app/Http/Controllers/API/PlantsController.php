@@ -7,6 +7,7 @@ use App\Http\Resources\PlantsResource;
 use App\Models\plants;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class PlantsController extends Controller
 {
@@ -16,7 +17,11 @@ class PlantsController extends Controller
     public function index()
     {
         $plants = plants::all();
-        return PlantsResource::collection($plants);
+        return response()->json ([
+            'status' => true,
+            'message' => 'Data tanaman berhasil ditampilkan',
+            'data' => $plants
+        ]);
     }
 
     /**
@@ -29,16 +34,23 @@ class PlantsController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'plant_img' => 'required|string', 
+        $validator = Validator::make($request->all(), [
+            'plant_img' => 'required|string',
             'plant_name' => 'required|string|max:255',
             'condition' => 'required|string|max:255',
             'disease' => 'nullable|string|max:255',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()
+            ], 400);
+        }
+
         $plant = new plants([
-            'id_users' => auth()->user()->id, 
-            'plant_img' => $request->input('plant_img'), 
+            'id_users' => 1,
+            'plant_img' => $request->input('plant_img'),
             'plant_name' => $request->input('plant_name'),
             'condition' => $request->input('condition'),
             'disease' => $request->input('disease'),
@@ -46,7 +58,10 @@ class PlantsController extends Controller
 
         $plant->save();
 
-        return response()->json(['message' => 'Gambar tanaman berhasil diunggah']);
+        return response()->json([
+            'status' => true,
+            'message' => 'Gambar tanaman berhasil diunggah'
+        ]);
     }
 
 
