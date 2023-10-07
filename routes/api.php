@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\MobileUsersController;
+use App\Http\Controllers\API\MobileUsersRegistrationController;
+use App\Http\Controllers\API\PlantsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +20,16 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//user
+Route::post('mobilelogin', [MobileUsersRegistrationController::class, 'login']);
+Route::post('mobileregister', [MobileUsersRegistrationController::class, 'register']);
+Route::post('mobilelogout', [MobileUsersRegistrationController::class, 'logout']);
+
+//plants
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/plants/upload-image', [PlantsController::class, 'store']);
+    Route::get('/data', [PlantsController::class, 'index']);  
+});
+
+
