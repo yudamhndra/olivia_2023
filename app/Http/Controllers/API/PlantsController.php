@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+
 class PlantsController extends Controller
 {
     /**
@@ -48,14 +49,31 @@ class PlantsController extends Controller
             ], 400);
         }
 
+        $base64Data = $request->input('plant_img');
+        $binaryData = base64_decode($base64Data);
+
+        $num = plants::where('plant_name', $request->input('plant_name'))
+                ->where('disease', $request->input('disease'))
+                ->count() + 1;
+
+        $filename = '';
+        if ($request->input('disease')) {
+            $filename = $request->input('plant_name') . '.' . $request->input('disease') . '.' . $num . '.png';
+        } else {
+            $filename = $request->input('plant_name') . '.healthy.' . $num . '.png';
+        }
+
+        // Simpan file gambar di server
+        Storage::disk('public')->put('plant_images/' . $filename, $binaryData);
+
+
         $plant = new plants([
-            'id_users' => 1,
-            'plant_img' => $request->input('plant_img'),
+            'id_users' => $request->input('id_users'),
+            'plant_img' => 'plant_images/' . $filename,
             'plant_name' => $request->input('plant_name'),
             'condition' => $request->input('condition'),
             'disease' => $request->input('disease'),
         ]);
-
         $plant->save();
 
         return response()->json([

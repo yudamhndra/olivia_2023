@@ -37,7 +37,7 @@ class MobileUsersRegistrationController extends Controller
             
             $user->save();
             $token = $user->createToken('MyToken')->accessToken;
-        
+
             DB::commit();
         
             return response()->json([
@@ -72,6 +72,7 @@ class MobileUsersRegistrationController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $token = $user->createToken('MyToken')->accessToken;
+            
 
             return response()->json([
                 'success' => true,
