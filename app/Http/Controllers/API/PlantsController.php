@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PlantsResource;
 use App\Models\plants;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 
-class PlantsController extends Controller
+class PlantsController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -18,11 +19,7 @@ class PlantsController extends Controller
     public function index()
     {
         $plants = plants::all();
-        return response()->json ([
-            'status' => true,
-            'message' => 'Data tanaman berhasil ditampilkan',
-            'data' => $plants
-        ]);
+        return $this->sendSuccessResponse($plants, 'User list retrieved successfully');
     }
 
     /**

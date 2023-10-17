@@ -9,15 +9,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\ApiController;
 
-class MobileUsersRegistrationController extends Controller
+
+class MobileUsersRegistrationController extends ApiController
 {
     public function register(Request $request){
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'unique:users'],
+            'username' => ['required', 'unique:users'],
+            'fullname' => ['required'],
             'password' => ['required'],
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -25,7 +29,7 @@ class MobileUsersRegistrationController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-        
+
         DB::beginTransaction();
         try {
             $user = new User;
@@ -34,23 +38,23 @@ class MobileUsersRegistrationController extends Controller
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
             $user->role = "user";
-            
+
             $user->save();
             $token = $user->createToken('MyToken')->accessToken;
 
+             // Get the access token
+            $accessToken = $token->accessToken;
+
+            // Save the access token in the user model
+            $user->access_token = $accessToken;
+
             DB::commit();
-        
-            return response()->json([
-                "message" => "success",
-                "user" => $user,
-                "token" => $token
-            ]);
+
+            return $this->sendSuccessResponse($user, 'Register Success');
+
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json([
-                'success' => false,
-                'message' => 'Registration failed',
-            ], 422);
+            return $this->sendErrorResponse('Registration failed');
         }
     }
 
@@ -62,31 +66,24 @@ class MobileUsersRegistrationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Login failed',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->sendErrorResponse('Login Failed', $validator->errors(), 401);
         }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $token = $user->createToken('MyToken')->accessToken;
-            
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token,
-            ]);
+             // Get the access token
+             $accessToken = $token->accessToken;
+
+             // Save the access token in the user model
+             $user->access_token = $accessToken;
+
+            return $this->sendSuccessResponse($user, 'Login successful');
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid email or password',
-            ], 401);
+            return $this->sendErrorResponse('Invalid email or password');
         }
-        
+
     }
     public function logout(Request $request)
     {
